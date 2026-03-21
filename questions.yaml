@@ -1,0 +1,191 @@
+python:
+  - id: 1
+    level: easy
+    question: "What is the output of print(2 + 2)?"
+    options:
+      - "3"
+      - "4"
+      - "5"
+      - "Error"
+    correct: 1
+    explanation: "2 + 2 equals 4"
+  
+  - id: 2
+    level: easy
+    question: "Which keyword is used to create a function in Python?"
+    options:
+      - "function"
+      - "def"
+      - "func"
+      - "define"
+    correct: 1
+    explanation: "The 'def' keyword is used to define functions"
+  
+  - id: 3
+    level: medium
+    question: "What does *args allow you to do?"
+    options:
+      - "Multiply arguments"
+      - "Accept variable number of positional arguments"
+      - "Create keyword arguments"
+      - "None of the above"
+    correct: 1
+    explanation: "*args allows functions to accept multiple arguments"
+  
+  - id: 4
+    level: pro
+    question: "What is the time complexity of searching in a hash table?"
+    options:
+      - "O(n)"
+      - "O(log n)"
+      - "O(1) average case"
+      - "O(n²)"
+    correct: 2
+    explanation: "Hash tables have O(1) average case lookup time"
+
+maths_4:
+  - id: 101
+    level: easy
+    question: "What is 5 + 3?"
+    options:
+      - "7"
+      - "8"
+      - "9"
+      - "6"
+    correct: 1
+    explanation: "5 + 3 = 8"
+  
+  - id: 102
+    level: easy
+    question: "What is 10 - 4?"
+    options:
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+    correct: 2
+    explanation: "10 - 4 = 6"
+  
+  - id: 103
+    level: medium
+    question: "What is 12 × 5?"
+    options:
+      - "50"
+      - "55"
+      - "60"
+      - "65"
+    correct: 2
+    explanation: "12 × 5 = 60"
+
+maths_5:
+  - id: 201
+    level: easy
+    question: "What is 7 + 15?"
+    options:
+      - "21"
+      - "22"
+      - "23"
+      - "24"
+    correct: 0
+    explanation: "7 + 15 = 22"
+  
+  - id: 202
+    level: medium
+    question: "What is 25 ÷ 5?"
+    options:
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+    correct: 1
+    explanation: "25 ÷ 5 = 5"
+
+sql:
+  - id: 301
+    level: easy
+    question: "What does SQL stand for?"
+    options:
+      - "Structured Query Language"
+      - "Standard Question Language"
+      - "Structured Question List"
+      - "None of above"
+    correct: 0
+    explanation: "SQL stands for Structured Query Language"
+  
+  - id: 302
+    level: easy
+    question: "Which keyword is used to retrieve data from a database?"
+    options:
+      - "GET"
+      - "SELECT"
+      - "FETCH"
+      - "RETRIEVE"
+    correct: 1
+    explanation: "SELECT is used to retrieve data from a database"
+  
+  - id: 303
+    level: medium
+    question: "What is a PRIMARY KEY?"
+    options:
+      - "A key to unlock the database"
+      - "A unique identifier for each record"
+      - "The most important field"
+      - "None of above"
+    correct: 1
+    explanation: "PRIMARY KEY uniquely identifies each record in a table"
+  
+  - id: 304
+    level: pro
+    question: "What is the difference between INNER JOIN and LEFT JOIN?"
+    options:
+      - "LEFT JOIN returns unmatched records from left table"
+      - "INNER JOIN returns only matching records"
+      - "Both are correct"
+      - "No difference"
+    correct: 2
+    explanation: "INNER JOIN returns only matching records, LEFT JOIN keeps all records from left table"
+
+linux:
+  - id: 401
+    level: easy
+    question: "Which command is used to list files in a directory?"
+    options:
+      - "dir"
+      - "ls"
+      - "list"
+      - "show"
+    correct: 1
+    explanation: "'ls' command lists files in a directory"
+  
+  - id: 402
+    level: easy
+    question: "What does 'pwd' command do?"
+    options:
+      - "Print working directory"
+      - "Print wide data"
+      - "Password"
+      - "None of above"
+    correct: 0
+    explanation: "'pwd' prints the current working directory path"
+  
+  - id: 403
+    level: medium
+    question: "How do you change permissions of a file in Linux?"
+    options:
+      - "chmod"
+      - "chown"
+      - "chperm"
+      - "permission"
+    correct: 0
+    explanation: "'chmod' is used to change file permissions"
+  
+  - id: 404
+    level: pro
+    question: "What is a process in Linux?"
+    options:
+      - "A running instance of a program"
+      - "A file system"
+      - "A network connection"
+      - "A storage device"
+    correct: 0
+    explanation: "A process is a running instance of a program with its own memory and resources"
