@@ -8,9 +8,8 @@ Right now the app supports subjects like Python, JavaScript, SQL, Linux, Java, R
 
 ## Why I made this
 
-I wanted a lightweight learning app that feels more dynamic than a fixed question bank. Instead of hardcoding every quiz, this project uses AI-generated multiple-choice questions so the session feels fresh each time.
+This project started when my daughter wanted to practice her math skills. After looking through iPad apps and finding mostly expensive subscriptions, I decided to build our own solution. What began as a simple math tool evolved into a broader learning platform as I added technical tracks like Python, SQL, and Web Dev for the community to practice.
 
-This was also a good excuse to practice organizing a Flask project properly instead of keeping everything inside one large `app.py`.
 
 ## What it does
 
