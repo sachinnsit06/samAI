@@ -18,7 +18,5 @@ app = create_app()
 
 if __name__ == "__main__":
     print("Starting samAI Server...")
-    print("On Mobile: http://192.168.2.141:5000")
-    print("On Desktop: http://127.0.0.1:5000")
     print("\nPress Ctrl+C to stop the server")
     app.run(host="0.0.0.0", port=5000, debug=True)
