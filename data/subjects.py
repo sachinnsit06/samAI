@@ -1,0 +1,17 @@
+SUBJECTS = {
+    "python": {"icon": "\U0001F40D", "name": "Python"},
+    "javascript": {"icon": "\U0001F4DC", "name": "JavaScript"},
+    "sql": {"icon": "\U0001F5C4\ufe0f", "name": "SQL"},
+    "linux": {"icon": "\U0001F427", "name": "Linux"},
+    "maths_4": {"icon": "\U0001F522", "name": "Maths Grade 4"},
+    "maths_5": {"icon": "\U0001F522", "name": "Maths Grade 5"},
+    "maths_6": {"icon": "\U0001F522", "name": "Maths Grade 6"},
+    "maths_7": {"icon": "\U0001F522", "name": "Maths Grade 7"},
+    "maths_8": {"icon": "\U0001F522", "name": "Maths Grade 8"},
+    "maths_9": {"icon": "\U0001F522", "name": "Maths Grade 9"},
+    "java": {"icon": "\u2615", "name": "Java"},
+    "web_design": {"icon": "\U0001F3A8", "name": "Web Design"},
+    "react": {"icon": "\u269b\ufe0f", "name": "React"},
+    "css": {"icon": "\U0001F3A8", "name": "CSS"},
+    "html": {"icon": "\U0001F3D7\ufe0f", "name": "HTML"},
+}
