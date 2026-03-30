@@ -85,6 +85,13 @@
         .input-group {
             margin-bottom: 20px;
         }
+
+        .helper-text {
+            margin-top: 8px;
+            color: #666;
+            font-size: 0.92em;
+            line-height: 1.5;
+        }
         
         label {
             display: block;
@@ -500,6 +507,14 @@
             <div id="message"></div>
             
             <div id="subjectsContainer" class="subjects-grid"></div>
+
+            <div class="input-group" style="margin-top: 30px;">
+                <label for="customTopic">Or Enter Your Own Topic</label>
+                <input type="text" id="customTopic" placeholder="Example: HFT style Linux interview questions" oninput="handleCustomTopicInput()">
+                <div class="helper-text">Type any custom topic and samAI will generate a quiz around it.</div>
+            </div>
+
+            <button onclick="useCustomTopic()" style="margin-bottom: 15px;">Continue With Custom Topic</button>
             
             <button onclick="logout()" class="logout-btn">Logout</button>
         </div>
@@ -514,6 +529,12 @@
                 <button class="level-btn" onclick="selectLevel('pro')">🔥 Pro</button>
             </div>
             
+            <div class="input-group">
+                <label for="questionCount">Number of Questions</label>
+                <input type="number" id="questionCount" min="1" max="25" value="15">
+                <div class="helper-text">Pick between 1 and 25 questions. Default is 15.</div>
+            </div>
+
             <button onclick="startQuiz()">Begin Quiz</button>
             <div class="button-group" style="margin-top: 15px;">
                 <button onclick="goBackToSubjects()" class="back-btn">Back</button>
@@ -546,6 +567,7 @@
     <script>
         let currentUser = null;
         let currentSubject = null;
+        let currentTopicLabel = null;
         let currentLevel = 'easy';
         let currentQuestion = null;
         let currentQuestionIndex = 0;
@@ -554,7 +576,32 @@
         let subjects = [];
         let questionTimer = null;
         let timeRemaining = 0;
+        let quizStartTime = null;
+        let quizDurationSeconds = 0;
         const TIME_PER_QUESTION = 90; // 90 seconds per question
+
+        function formatDuration(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}m ${seconds}s`;
+        }
+
+        function formatTopicLabel(topicLabel, isCustom = false) {
+            if (!topicLabel) {
+                return '';
+            }
+            return isCustom ? `Custom Topic - ${topicLabel}` : topicLabel.replace('_', ' ');
+        }
+
+        function getCompletionMessage(percentage) {
+            if (percentage >= 80) {
+                return 'Good job! You really know your stuff.';
+            }
+            if (percentage >= 60) {
+                return 'Nice work. You are getting there.';
+            }
+            return 'Good effort. One more round will make this even stronger.';
+        }
         
         function handleKeyPress(event, action) {
             if (event.key === 'Enter') {
@@ -609,6 +656,7 @@
                 const info = subjectInfo[subject];
                 const card = document.createElement('div');
                 card.className = 'subject-card';
+                card.dataset.subject = subject;
                 card.innerHTML = `
                     <div class="subject-icon">${info.icon}</div>
                     <div class="subject-name">${info.name}</div>
@@ -620,6 +668,44 @@
         
         function selectSubject(subject) {
             currentSubject = subject;
+            currentTopicLabel = formatTopicLabel(subject);
+            document.getElementById('customTopic').value = '';
+            updateSelectedSubjectCard();
+            showLevelSelection();
+        }
+
+        function handleCustomTopicInput() {
+            const customTopic = document.getElementById('customTopic').value.trim();
+            if (customTopic) {
+                currentSubject = null;
+                currentTopicLabel = formatTopicLabel(customTopic, true);
+            }
+            updateSelectedSubjectCard();
+        }
+
+        function updateSelectedSubjectCard() {
+            document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('selected'));
+
+            if (!currentSubject) {
+                return;
+            }
+
+            const selectedCard = document.querySelector(`[data-subject="${currentSubject}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+        }
+
+        function useCustomTopic() {
+            const customTopic = document.getElementById('customTopic').value.trim();
+            if (!customTopic) {
+                showMessage('Type a custom topic first', 'error');
+                return;
+            }
+
+            currentSubject = null;
+            currentTopicLabel = formatTopicLabel(customTopic, true);
+            updateSelectedSubjectCard();
             showLevelSelection();
         }
         
@@ -654,24 +740,60 @@
         }
         
         async function startQuiz() {
+            const customTopic = document.getElementById('customTopic').value.trim();
+            const countInput = parseInt(document.getElementById('questionCount').value, 10);
+            const questionCount = Number.isFinite(countInput) ? Math.min(Math.max(countInput, 1), 25) : 15;
+            const selectedTopic = customTopic || currentSubject;
+
+            if (!selectedTopic) {
+                showSubjectSelection();
+                showMessage('Select a subject or type a custom topic first', 'error');
+                return;
+            }
+
+            currentTopicLabel = customTopic
+                ? formatTopicLabel(customTopic, true)
+                : formatTopicLabel(currentSubject);
             showQuizSection();
             document.getElementById('loadingContainer').style.display = 'block';
             document.getElementById('questionContainer').innerHTML = '';
+            clearFeedback();
+            showMessage('', 'success');
             
             try {
-                const response = await fetch(`/api/questions?level=${currentLevel}&subject=${currentSubject}`);
-                questions = await response.json();
+                const params = new URLSearchParams({
+                    level: currentLevel,
+                    count: String(questionCount)
+                });
+
+                if (customTopic) {
+                    params.set('custom_topic', customTopic);
+                } else {
+                    params.set('subject', currentSubject);
+                }
+
+                const response = await fetch(`/api/questions?${params.toString()}`);
+                const data = await response.json();
+                document.getElementById('loadingContainer').style.display = 'none';
                 
-                if (!questions || questions.length === 0) {
+                if (!response.ok) {
+                    showMessage(data.error || 'Failed to load questions', 'error');
+                    return;
+                }
+
+                if (!Array.isArray(data) || data.length === 0) {
                     showMessage('No questions available', 'error');
                     return;
                 }
+
+                questions = data;
                 
                 quizScore = 0;
                 currentQuestionIndex = 0;
+                quizStartTime = Date.now();
+                quizDurationSeconds = 0;
                 
                 setTimeout(() => {
-                    document.getElementById('loadingContainer').style.display = 'none';
                     displayQuestion();
                 }, 1500);
                 
@@ -684,16 +806,29 @@
         function displayQuestion() {
             if (currentQuestionIndex >= questions.length) {
                 const percentage = Math.round((quizScore / questions.length) * 100);
+                const completionMessage = getCompletionMessage(percentage);
+                quizDurationSeconds = quizStartTime
+                    ? Math.max(0, Math.round((Date.now() - quizStartTime) / 1000))
+                    : 0;
                 document.getElementById('questionContainer').innerHTML = `
                     <div class="question-complete">
                         <div class="complete-icon">🎉</div>
                         <div class="complete-text">Quiz Complete!</div>
+                        <div style="font-size: 1.1em; color: #555; margin-bottom: 16px;">${completionMessage}</div>
                         <div style="font-size: 1.2em; color: #666; margin-bottom: 20px;">You scored:</div>
                         <div class="score-percentage">${quizScore}/${questions.length}</div>
-                        <div style="font-size: 1.3em; color: #667eea; font-weight: 700;">${percentage}%</div>
+                        <div style="font-size: 1.3em; color: #667eea; font-weight: 700; margin-bottom: 12px;">${percentage}%</div>
+                        <div style="font-size: 1.05em; color: #666;">Time taken: ${formatDuration(quizDurationSeconds)}</div>
                     </div>
                 `;
+                document.getElementById('scoreDisplay').textContent = `${quizScore}/${questions.length}`;
                 if (questionTimer) clearInterval(questionTimer);
+                return;
+            }
+
+            if (!Array.isArray(questions) || !questions[currentQuestionIndex]) {
+                document.getElementById('questionContainer').innerHTML = '';
+                showMessage('Questions could not be loaded. Check the API configuration and try again.', 'error');
                 return;
             }
             
@@ -710,7 +845,7 @@
             });
             
             document.getElementById('scoreDisplay').textContent = quizScore;
-            document.getElementById('userDisplay').textContent = `${currentUser} • ${currentSubject.replace('_', ' ').toUpperCase()} • ${currentLevel.toUpperCase()}`;
+            document.getElementById('userDisplay').textContent = `${currentUser} • ${currentTopicLabel.toUpperCase()} • ${currentLevel.toUpperCase()}`;
             
             document.getElementById('questionContainer').innerHTML = `
                 <div class="timer-section">
@@ -723,7 +858,7 @@
                 <div class="options">
                     ${optionsHtml}
                 </div>
-                <button onclick="submitAnswer()" style="margin-top: 25px;">Submit Answer</button>
+                <button id="submitAnswerBtn" onclick="submitAnswer()" style="margin-top: 25px;">Submit Answer</button>
             `;
             
             clearFeedback();
@@ -770,6 +905,13 @@
             }
             
             if (questionTimer) clearInterval(questionTimer);
+            document.querySelectorAll('input[name="answer"]').forEach(input => input.disabled = true);
+            const submitButton = document.getElementById('submitAnswerBtn');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.style.opacity = '0.7';
+                submitButton.style.cursor = 'not-allowed';
+            }
             
             const userAnswer = parseInt(selected.value);
             
@@ -782,7 +924,7 @@
                         question_id: currentQuestion.id,
                         answer: userAnswer,
                         level: currentLevel,
-                        subject: currentSubject,
+                        subject: currentTopicLabel,
                         correct_answer: currentQuestion.correct
                     })
                 });
@@ -799,10 +941,8 @@
                     feedbackDiv.innerHTML = `<strong>❌ Incorrect</strong><br><br>Correct Answer: ${currentQuestion.options[data.correct_answer]}<br><br>${currentQuestion.explanation}`;
                 }
                 
-                setTimeout(() => {
-                    currentQuestionIndex++;
-                    displayQuestion();
-                }, 3000);
+                const nextButtonLabel = currentQuestionIndex === questions.length - 1 ? 'See Results' : 'Next Question';
+                feedbackDiv.innerHTML += `<div style="margin-top: 20px;"><button onclick="nextQuestion()">${nextButtonLabel}</button></div>`;
                 
             } catch (error) {
                 showMessage('Error: ' + error.message, 'error');
@@ -813,6 +953,11 @@
             document.getElementById('feedbackContainer').className = 'feedback';
             document.getElementById('feedbackContainer').innerHTML = '';
         }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
         
         function goBackToSubjects() {
             showSubjectSelection();
@@ -821,8 +966,14 @@
         function logout() {
             currentUser = null;
             currentSubject = null;
+            currentTopicLabel = null;
+            quizStartTime = null;
+            quizDurationSeconds = 0;
             document.getElementById('username').value = '';
+            document.getElementById('customTopic').value = '';
+            document.getElementById('questionCount').value = 15;
             document.getElementById('authMessage').innerHTML = '';
+            updateSelectedSubjectCard();
             showAuthSection();
         }
         
@@ -834,6 +985,11 @@
         
         function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
+            if (!text) {
+                messageDiv.className = '';
+                messageDiv.textContent = '';
+                return;
+            }
             messageDiv.className = `message ${type}`;
             messageDiv.textContent = text;
         }

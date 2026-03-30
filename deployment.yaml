@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: samai-deployment
+spec:
+  replicas: 2  # my  2 containers
+  selector:
+    matchLabels:
+      app: samai-app
+  template:
+    metadata:
+      labels:
+        app: samai-app
+    spec:
+      containers:
+      - name: samai-container
+        image: us-central1-docker.pkg.dev/project-b05e23b0-d4a5-4b78-a19/samai-repo/samai-app:latest
+        imagePullPolicy: Always  # Local image use karne ke liye
+        ports:
+        - containerPort: 5000

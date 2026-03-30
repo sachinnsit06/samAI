@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: samai-service
+spec:
+  selector:
+    app: samai-app
+  ports:
+    - protocol: TCP
+      port: 80       # Service port
+      targetPort: 8080
+  type: LoadBalancer
+

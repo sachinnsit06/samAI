@@ -34,12 +34,19 @@ def get_subjects():
 @api_bp.route("/api/questions", methods=["GET"])
 def get_questions():
     level = request.args.get("level", "easy")
-    subject = request.args.get("subject", "python")
+    subject = request.args.get("subject", "").strip()
+    custom_topic = request.args.get("custom_topic", "").strip()
+    count = request.args.get("count", default=12, type=int)
+    count = min(max(count or 12, 1), 25)
+    topic = custom_topic or subject
 
-    if not subject:
-        return jsonify({"error": "Subject is required"}), 400
+    if not topic:
+        return jsonify({"error": "Select a subject or enter a custom topic"}), 400
 
-    ai_questions = generate_questions_from_ai(subject, level, count=12)
+    ai_questions = generate_questions_from_ai(topic, level, count=count)
+
+    if isinstance(ai_questions, dict) and ai_questions.get("error"):
+        return jsonify(ai_questions), 500
 
     if not ai_questions or "error" in (ai_questions[0] if ai_questions else {}):
         return jsonify({"error": "Failed to generate questions. Please try again."}), 500
