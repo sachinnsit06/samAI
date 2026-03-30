@@ -35,5 +35,5 @@ jobs:
           --image ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO_NAME }}/sam-ai-app:${{ github.sha }} \
           --region ${{ env.REGION }} \
           --platform managed \
-          --allow-unauthenticated
-          --set-env-vars GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} 
+          --allow-unauthenticated \
+          --set-secrets=GOOGLE_API_KEY=gemini-api-key:latest
