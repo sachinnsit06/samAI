@@ -2,6 +2,9 @@ name: Docker Build and Deploy
 on:
   push:
     branches: [ "samAI", "main", "master" ] # Trigger on push to main or master
+env:
+  REGION: us-central1
+  REPO_NAME: samai-repo
 
 jobs:
   deploy:
@@ -18,19 +21,19 @@ jobs:
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v2'
 
-    - name: Configure Docker for GCP
-      run: gcloud auth configure-docker --quiet
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/sam-ai-app:latest .
-        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/sam-ai-app:latest
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO_NAME }}/sam-ai-app:${{ github.sha }} .
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO_NAME }}/sam-ai-app:${{ github.sha }}
 
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy sam-ai-service \
-          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/sam-ai-app:latest \
-          --region us-central1 \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO_NAME }}/sam-ai-app:${{ github.sha }} \
+          --region ${{ env.REGION }} \
           --platform managed \
           --allow-unauthenticated
 
