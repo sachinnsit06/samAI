@@ -1,7 +1,7 @@
 name: Docker Build and Deploy
 on:
   push:
-    branches: [ "main", "master" ] # Trigger on push to main or master
+    branches: [ "samAI", "main", "master" ] # Trigger on push to main or master
 
 jobs:
   deploy:
