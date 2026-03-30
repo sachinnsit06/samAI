@@ -19,7 +19,7 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", "5000"))
+    port = int(os.getenv("PORT", "8080"))
     print("Starting samAI Server...")
     print(f"Listening on port {port}")
     print("\nPress Ctrl+C to stop the server")
